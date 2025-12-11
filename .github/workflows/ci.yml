@@ -20,13 +20,13 @@ permissions:
 
 jobs:
   policy-bundle:
-    uses: project-unisonOS/.github/.github/workflows/reusable-policy-bundle.yml@955fd5c8924b1c2b1324453416afc8b6911ff235
+    uses: project-unisonOS/.github/.github/workflows/reusable-policy-bundle.yml@b8262adfe3ac737ef9fc2e02c337f3983c83c773
     with:
       policy-dir: policies
       bundle-out: bundle.tar.gz
 
   python-security:
-    uses: project-unisonOS/.github/.github/workflows/reusable-python-security.yml@955fd5c8924b1c2b1324453416afc8b6911ff235
+    uses: project-unisonOS/.github/.github/workflows/reusable-python-security.yml@b8262adfe3ac737ef9fc2e02c337f3983c83c773
     with:
       python-version: "3.11"
       working-directory: "."
