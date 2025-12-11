@@ -1,0 +1,32 @@
+name: unison-security-ci
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "policies/**"
+      - ".github/workflows/**"
+      - "README.md"
+  pull_request:
+    paths:
+      - "policies/**"
+      - ".github/workflows/**"
+      - "README.md"
+
+permissions:
+  contents: read
+  id-token: write
+  actions: read
+
+jobs:
+  policy-bundle:
+    uses: project-unisonOS/.github/.github/workflows/reusable-policy-bundle.yml@955fd5c8924b1c2b1324453416afc8b6911ff235
+    with:
+      policy-dir: policies
+      bundle-out: bundle.tar.gz
+
+  python-security:
+    uses: project-unisonOS/.github/.github/workflows/reusable-python-security.yml@955fd5c8924b1c2b1324453416afc8b6911ff235
+    with:
+      python-version: "3.11"
+      working-directory: "."
