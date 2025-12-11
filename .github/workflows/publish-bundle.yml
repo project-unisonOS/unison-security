@@ -1,0 +1,49 @@
+name: publish-policy-bundle
+
+on:
+  push:
+    tags:
+      - "policy-*"
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  build-sign-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          fetch-depth: 1
+
+      - name: Build policy bundle
+        uses: project-unisonOS/.github/.github/workflows/reusable-policy-bundle.yml@955fd5c8924b1c2b1324453416afc8b6911ff235
+        with:
+          policy-dir: policies
+          bundle-out: bundle.tar.gz
+
+      - name: Download bundle artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: bundle.tar.gz
+          path: dist
+
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@59acb6260d9c0ba8f4a2f9d9b48431a222b68e20
+
+      - name: Sign bundle (keyless)
+        env:
+          COSIGN_EXPERIMENTAL: "1"
+        run: |
+          cosign sign-blob --yes dist/bundle.tar.gz > dist/bundle.sig
+
+      - name: Upload release assets
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/bundle.tar.gz
+            dist/bundle.sig
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

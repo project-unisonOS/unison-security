@@ -9,6 +9,10 @@ Proposed responsibilities:
 - Audit: Schemas and forwarders for security/audit events.
 - CI/CD: Reusable workflows for signing, SBOM, policy validation.
 
+Workflows:
+- `ci`: validate policies and run security checks.
+- `publish-policy-bundle`: build, sign (cosign keyless), and attach bundles to tagged releases (`policy-*`).
+
 Structure:
 - `policies/` — Rego/Cedar policies, tests, and bundles.
 - `sidecars/` — Example Envoy/OPA sidecar configs.

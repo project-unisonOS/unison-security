@@ -1,6 +1,6 @@
 package unison.authz
 
-# Simple example: allow only if consent is granted and role is authorized.
+# Example authz: consent-aware, step-up for actuation, minimal context rules.
 
 default allow = false
 
@@ -12,6 +12,8 @@ allow {
 action_allowed {
   input.action == "context.read"
   input.role in {"admin", "operator", "user"}
+  # protect sensitive fields
+  not contains_sensitive_field
 }
 
 action_allowed {
@@ -23,4 +25,10 @@ action_allowed {
 deny_reason[msg] {
   not allow
   msg := "consent missing or role unauthorized"
+}
+
+contains_sensitive_field {
+  some path
+  input.fields[path]
+  path == "secrets"
 }
