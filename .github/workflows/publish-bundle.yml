@@ -25,7 +25,7 @@ jobs:
           bundle-out: bundle.tar.gz
 
       - name: Download bundle artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: bundle.tar.gz
           path: dist
