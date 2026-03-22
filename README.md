@@ -1,27 +1,27 @@
-## unison-security (bootstrap)
+# unison-security
 
-Purpose: centralize cross-cutting security artifacts and services for UnisonOS.
+Security guidance, sidecar configuration, SPIRE bootstrap assets, and policy-supporting artifacts for UnisonOS.
 
-Proposed responsibilities:
-- Identity: SPIFFE/SPIRE configuration and helper scripts for issuing SVIDs; templates for service identity bootstrapping.
-- Policy: OPA/Cedar bundles for authZ/consent; sidecar config snippets for Envoy/ext_authz.
-- Secrets: Interfaces to Vault/Secret Manager; guidance and SDK stubs for secret retrieval.
-- Audit: Schemas and forwarders for security/audit events.
-- CI/CD: Reusable workflows for signing, SBOM, policy validation.
+## Status
+Documentation and configuration repo. This repo does not expose an application server; it centralizes cross-cutting security material used by the service repos and deployment stacks.
 
-Workflows:
-- `ci`: validate policies and run security checks.
-- `publish-policy-bundle`: build, sign (cosign keyless), and attach bundles to tagged releases (`policy-*`).
+## What is here today
+- `docs/` — threat models, enrollment notes, service identity guidance, logging/audit schema, runbooks, and data-classification material.
+- `sidecars/` — example Envoy and OPA sidecar configuration.
+- `spire/` — SPIRE server and agent configuration plus usage notes.
+- `scripts/registration.sh` — helper script for registration flows.
+- `policies/` — policy repo support docs and bundle references.
 
-Structure:
-- `policies/` — Rego/Cedar policies, tests, and bundles.
-- `sidecars/` — Example Envoy/OPA sidecar configs.
-- `scripts/` — Enrollment/onboarding scripts (e.g., SPIRE node/agent).
-- `docs/` — Threat models, runbooks, and integration guides.
-- `.github/workflows/` — CI for policy validation and bundle build/publish.
+## Intended use
+- Reference security architecture while implementing or reviewing service behavior.
+- Reuse sidecar and SPIRE configuration patterns in secure deployments.
+- Keep audit/logging schema guidance aligned with service implementations.
 
-Next steps:
-1. Decide policy engine (OPA vs Cedar) and wire initial ABAC/RBAC rules.
-2. Add SPIRE server/agent configs and enrollment flow for core services.
-3. Publish bundles to an internal bucket/registry and enforce via admission/sidecars.
-4. Integrate cosign signing/verification of bundles and images.
+## Related repos
+- `unison-policy` for runtime policy evaluation and grant endpoints.
+- `unison-auth` and `unison-consent` for authn/authz and consent tokens.
+- `unison-platform` and `unison-workspace` for deployment wiring.
+
+## Docs
+- Public docs: https://project-unisonos.github.io/reference/security/
+- Repo docs: `docs/README.md`, `spire/README.md`, `policies/README.md`
