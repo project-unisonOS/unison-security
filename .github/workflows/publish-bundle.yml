@@ -6,11 +6,10 @@ on:
       - "policy-*"
 
 permissions:
-  contents: write
-  id-token: write
+  contents: read
 
 jobs:
-  build-sign-publish:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -18,12 +17,35 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Build policy bundle
-        uses: project-unisonOS/.github/.github/workflows/reusable-policy-bundle.yml@955fd5c8924b1c2b1324453416afc8b6911ff235
-        with:
-          policy-dir: policies
-          bundle-out: bundle.tar.gz
+      - name: Install OPA
+        env:
+          OPA_VERSION: v1.18.2
+          OPA_SHA256: 9903e5125ac281104f2c4b7371d10cc3b74a98933743fcbfc174f9bf0ab20de8
+        run: |
+          curl --fail --location --silent --show-error \
+            "https://github.com/open-policy-agent/opa/releases/download/${OPA_VERSION}/opa_linux_amd64_static" \
+            --output opa
+          echo "${OPA_SHA256}  opa" | sha256sum --check --strict
+          chmod +x opa
 
+      - name: Test and build policy bundle
+        run: |
+          ./opa test policies
+          ./opa build --bundle policies --output bundle.tar.gz
+
+      - name: Upload policy bundle
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: bundle.tar.gz
+          path: bundle.tar.gz
+
+  sign-and-publish:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+    steps:
       - name: Download bundle artifact
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
@@ -36,8 +58,7 @@ jobs:
       - name: Sign bundle (keyless)
         env:
           COSIGN_EXPERIMENTAL: "1"
-        run: |
-          cosign sign-blob --yes dist/bundle.tar.gz > dist/bundle.sig
+        run: cosign sign-blob --yes dist/bundle.tar.gz > dist/bundle.sig
 
       - name: Upload release assets
         uses: softprops/action-gh-release@3d0d9888cb7fd7b750713d6e236d1fcb99157228 # v3.0.2
