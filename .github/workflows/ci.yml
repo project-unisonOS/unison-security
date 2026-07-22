@@ -16,14 +16,35 @@ on:
 permissions:
   contents: read
   id-token: write
-  actions: read
 
 jobs:
   policy-bundle:
-    uses: project-unisonOS/.github/.github/workflows/reusable-policy-bundle.yml@b8262adfe3ac737ef9fc2e02c337f3983c83c773
-    with:
-      policy-dir: policies
-      bundle-out: bundle.tar.gz
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Install OPA
+        env:
+          OPA_VERSION: v1.18.2
+          OPA_SHA256: 9903e5125ac281104f2c4b7371d10cc3b74a98933743fcbfc174f9bf0ab20de8
+        run: |
+          curl --fail --location --silent --show-error \
+            "https://github.com/open-policy-agent/opa/releases/download/${OPA_VERSION}/opa_linux_amd64_static" \
+            --output opa
+          echo "${OPA_SHA256}  opa" | sha256sum --check --strict
+          chmod +x opa
+
+      - name: Test and build policy bundle
+        run: |
+          ./opa test --v0-compatible policies
+          ./opa build --v0-compatible --bundle policies --output bundle.tar.gz
+
+      - name: Upload policy bundle
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: bundle.tar.gz
+          path: bundle.tar.gz
 
   python-security:
     uses: project-unisonOS/.github/.github/workflows/reusable-python-security.yml@7b392529550f2963dc0022428e873ddb17cdedd4

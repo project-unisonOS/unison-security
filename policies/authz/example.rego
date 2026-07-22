@@ -1,5 +1,7 @@
 package unison.authz
 
+import future.keywords.in
+
 # Example authz: consent-aware, step-up for actuation, minimal context rules.
 
 default allow = false
