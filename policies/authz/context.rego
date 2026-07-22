@@ -1,5 +1,7 @@
 package unison.authz.context
 
+import future.keywords.in
+
 default allow = false
 
 allow {

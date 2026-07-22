@@ -1,5 +1,7 @@
 package unison.authz.actuation
 
+import future.keywords.in
+
 default allow = false
 
 allow {
